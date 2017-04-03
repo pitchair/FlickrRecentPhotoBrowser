@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">FlickrRecentPhotoBrowser</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="ok">Ok</string>
+    <string name="download">Download</string>
+    <string name="open">Open</string>
+    <string name="saved">Saved</string>
+    <string name="cancel">Cancel</string>
+    <string name="content_saved">Content Saved</string>
+    <string name="error">Error</string>
+</resources>
