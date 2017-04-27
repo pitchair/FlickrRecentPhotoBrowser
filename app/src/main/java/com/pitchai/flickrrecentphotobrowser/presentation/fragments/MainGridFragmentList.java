@@ -18,17 +18,21 @@ import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
-import com.pitchai.flickrrecentphotobrowser.ApplicationComponent;
+import com.pitchai.flickrrecentphotobrowser.AndroidApplication;
 import com.pitchai.flickrrecentphotobrowser.R;
 import com.pitchai.flickrrecentphotobrowser.RecyclerItemClickListener;
-import com.pitchai.flickrrecentphotobrowser.presentation.adapter.RecyclerPhotoAdapter;
 import com.pitchai.flickrrecentphotobrowser.data.photoinfo.Photo;
+import com.pitchai.flickrrecentphotobrowser.presentation.adapter.RecyclerPhotoAdapter;
+import com.pitchai.flickrrecentphotobrowser.presentation.internal.di.modules
+        .MainGridListFragmentModule;
 import com.pitchai.flickrrecentphotobrowser.presentation.presenter.GridPhotoListPresenterImp;
-import com.pitchai.flickrrecentphotobrowser.utils.Utils;
 import com.pitchai.flickrrecentphotobrowser.presentation.view.GridPhotoListView;
+import com.pitchai.flickrrecentphotobrowser.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 
 /**
@@ -39,7 +43,7 @@ import java.util.List;
  * Use the {@link MainGridFragmentList#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class MainGridFragmentList extends Fragment implements GridPhotoListView {
+public class MainGridFragmentList extends BaseFragment implements GridPhotoListView {
 
     private static final String TAG = MainGridFragmentList.class.getSimpleName();
     public static int mColWidth;
@@ -49,8 +53,10 @@ public class MainGridFragmentList extends Fragment implements GridPhotoListView 
     private RecyclerView mRecyclerView;
     private int scrollPreviousTotal = 0;
     private boolean loading = true;
-    private RecyclerPhotoAdapter mRecyclerPhotoAdapter;
-    private GridPhotoListPresenterImp gridPhotoListPresenterImp;
+    @Inject
+    public RecyclerPhotoAdapter mRecyclerPhotoAdapter;
+    @Inject
+    public GridPhotoListPresenterImp gridPhotoListPresenterImp;
     ArrayList<Photo> mPhotoList;
     int mCurrentPageNumber;
     ProgressBar mProgressBar;
@@ -79,10 +85,10 @@ public class MainGridFragmentList extends Fragment implements GridPhotoListView 
         setRetainInstance(true);
         setHasOptionsMenu(true);
         mPhotoList = new ArrayList<>();
-        gridPhotoListPresenterImp = new GridPhotoListPresenterImp(getApplicationComponent()
-                .getRestApiService(),
-                getApplicationComponent().getJobExecutor(), getApplicationComponent().getUIThread
-                (), this);
+        AndroidApplication.getAndroidApplication(this.getActivity())
+                .getApplicationComponent()
+                .plus(new MainGridListFragmentModule(this))
+                .inject(this);
     }
 
     @Override
@@ -124,7 +130,7 @@ public class MainGridFragmentList extends Fragment implements GridPhotoListView 
         mListener = null;
     }
 
-    public void onDestroy () {
+    public void onDestroy() {
         super.onDestroy();
         gridPhotoListPresenterImp.destroy();
     }
@@ -137,9 +143,6 @@ public class MainGridFragmentList extends Fragment implements GridPhotoListView 
         mProgressBar = (ProgressBar) view.findViewById(R.id.activity_progressbar);
         mSwipeRefresh = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefresh);
         // usersAdapter = new UsersAdapter(getActivity().getApplicationContext());
-        mRecyclerPhotoAdapter = new RecyclerPhotoAdapter(getActivity().getApplicationContext(),
-                getApplicationComponent().getJobExecutor(), getApplicationComponent().getUIThread()
-        );
         mRecyclerView = (RecyclerView) view.findViewById(R.id.photo_recycler_view);
         /*mRecyclerView.setLayoutManager(new UsersLayoutManager(getActivity()
         .getApplicationContext()));
@@ -192,15 +195,12 @@ public class MainGridFragmentList extends Fragment implements GridPhotoListView 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        gridPhotoListPresenterImp.setGridPhotoListView(this);
         if (mPhotoList.size() == 0) {
             gridPhotoListPresenterImp.execute(1);
         } else {
             mRecyclerPhotoAdapter.updateList(mPhotoList);
         }
-    }
-
-    private ApplicationComponent getApplicationComponent() {
-        return ApplicationComponent.getInstance(getActivity());
     }
 
     @Override
@@ -215,7 +215,6 @@ public class MainGridFragmentList extends Fragment implements GridPhotoListView 
     }
 
 
-
     @Override
     public void showLoading() {
         mProgressBar.setVisibility(View.VISIBLE);
@@ -228,7 +227,7 @@ public class MainGridFragmentList extends Fragment implements GridPhotoListView 
 
     @Override
     public void showError(String message) {
-        Toast.makeText(getActivity(),message,Toast.LENGTH_SHORT).show();
+        Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
     @Override

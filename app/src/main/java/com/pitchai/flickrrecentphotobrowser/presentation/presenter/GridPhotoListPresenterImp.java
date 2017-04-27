@@ -1,11 +1,13 @@
 package com.pitchai.flickrrecentphotobrowser.presentation.presenter;
 
-import com.pitchai.flickrrecentphotobrowser.data.RestApiService;
+import com.pitchai.flickrrecentphotobrowser.data.FlickrRestApiService;
 import com.pitchai.flickrrecentphotobrowser.data.photoinfo.Photo;
 import com.pitchai.flickrrecentphotobrowser.data.photoinfo.PhotoInfo;
 import com.pitchai.flickrrecentphotobrowser.data.photoinfo.Photos;
 import com.pitchai.flickrrecentphotobrowser.domain.Interactor.DefaultObserver;
 import com.pitchai.flickrrecentphotobrowser.domain.Interactor.GetPhotoInfoList;
+import com.pitchai.flickrrecentphotobrowser.domain.JobExecutor;
+import com.pitchai.flickrrecentphotobrowser.domain.UIThread;
 import com.pitchai.flickrrecentphotobrowser.domain.executor.PostExecutionThread;
 import com.pitchai.flickrrecentphotobrowser.domain.executor.ThreadExecutor;
 import com.pitchai.flickrrecentphotobrowser.presentation.view.GridPhotoListView;
@@ -21,10 +23,12 @@ public class GridPhotoListPresenterImp implements Presenter {
     GridPhotoListView gridPhotoListView;
     private final GetPhotoInfoList getPhotoInfoList;
 
-    public GridPhotoListPresenterImp(RestApiService apiService, ThreadExecutor executor, PostExecutionThread uiThread,
-                                     GridPhotoListView gridPhotoListView) {
-        this.gridPhotoListView = gridPhotoListView;
+    public GridPhotoListPresenterImp(FlickrRestApiService apiService, ThreadExecutor executor, PostExecutionThread uiThread) {
         getPhotoInfoList = new GetPhotoInfoList(apiService,executor,uiThread);
+    }
+
+    public void setGridPhotoListView( GridPhotoListView view) {
+        gridPhotoListView = view;
     }
 
     public void execute(int currentPageNumber) {

@@ -22,7 +22,7 @@ import com.pitchai.flickrrecentphotobrowser.presentation.fragments.PhotoFragment
 import java.util.ArrayList;
 
 
-public class PhotoViewerActivity extends FragmentActivity implements PhotoFragment
+public class PhotoViewerActivity extends BaseActivity implements PhotoFragment
         .OnFragmentInteractionListener, ViewPager.OnPageChangeListener {
 
     private static final String TAG = PhotoViewerActivity.class.getSimpleName();

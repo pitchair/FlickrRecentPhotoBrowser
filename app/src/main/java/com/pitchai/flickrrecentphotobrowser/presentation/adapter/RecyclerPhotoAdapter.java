@@ -23,13 +23,14 @@ import com.pitchai.flickrrecentphotobrowser.domain.Interactor.GetPhotoImage;
 import com.pitchai.flickrrecentphotobrowser.domain.executor.PostExecutionThread;
 import com.pitchai.flickrrecentphotobrowser.domain.executor.ThreadExecutor;
 import com.pitchai.flickrrecentphotobrowser.presentation.presenter.GridPhotoImagePresenter;
-import com.pitchai.flickrrecentphotobrowser.utils.Utils;
 import com.pitchai.flickrrecentphotobrowser.presentation.view.GridPhotoImageView;
+import com.pitchai.flickrrecentphotobrowser.utils.Utils;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.pitchai.flickrrecentphotobrowser.presentation.fragments.MainGridFragmentList.mColWidth;
+import static com.pitchai.flickrrecentphotobrowser.presentation.fragments.MainGridFragmentList
+        .mColWidth;
 
 
 public class RecyclerPhotoAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -119,7 +120,7 @@ public class RecyclerPhotoAdapter extends RecyclerView.Adapter<RecyclerView.View
                     photoHolder.imageView.setImageDrawable(photoHolder.errorDrawable);
                     Log.d(TAG, "Error in fetching image: " + error);
                 }
-            }, GetPhotoImage.Params.forPhotoInfo(Utils.getUrl(photo),mColWidth, mColWidth));
+            }, GetPhotoImage.Params.forPhotoInfo(Utils.getUrl(photo), mColWidth, mColWidth));
 
         } else {
             LoadingViewHolder loadingViewHolder = (LoadingViewHolder) holder;
