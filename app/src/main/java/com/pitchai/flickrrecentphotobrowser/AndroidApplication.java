@@ -16,6 +16,12 @@
 package com.pitchai.flickrrecentphotobrowser;
 
 import android.app.Application;
+import android.content.Context;
+
+import com.pitchai.flickrrecentphotobrowser.presentation.internal.di.component.ApplicationComponent;
+import com.pitchai.flickrrecentphotobrowser.presentation.internal.di.component
+        .DaggerApplicationComponent;
+import com.pitchai.flickrrecentphotobrowser.presentation.internal.di.modules.ApplicationModule;
 
 
 /**
@@ -27,7 +33,17 @@ public class AndroidApplication extends Application {
   @Override
   public void onCreate() {
     super.onCreate();
-    mApplicationComponent = ApplicationComponent.getInstance(this);
+    initializeInjector();
+  }
+
+  private void initializeInjector() {
+    this.mApplicationComponent = DaggerApplicationComponent.builder()
+            .applicationModule(new ApplicationModule(this))
+            .build();
+  }
+
+  public static AndroidApplication getAndroidApplication(Context context) {
+    return (AndroidApplication) context.getApplicationContext();
   }
 
   public ApplicationComponent getApplicationComponent() {

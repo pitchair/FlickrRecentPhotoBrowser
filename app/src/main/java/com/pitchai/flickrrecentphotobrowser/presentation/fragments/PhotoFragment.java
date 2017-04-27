@@ -11,13 +11,16 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import com.bumptech.glide.request.target.Target;
-import com.pitchai.flickrrecentphotobrowser.ApplicationComponent;
+import com.pitchai.flickrrecentphotobrowser.AndroidApplication;
 import com.pitchai.flickrrecentphotobrowser.R;
 import com.pitchai.flickrrecentphotobrowser.data.photoinfo.Photo;
 import com.pitchai.flickrrecentphotobrowser.domain.Interactor.GetPhotoImage;
+import com.pitchai.flickrrecentphotobrowser.presentation.internal.di.modules.PhotoFragmentModule;
 import com.pitchai.flickrrecentphotobrowser.presentation.presenter.GridPhotoImagePresenter;
 import com.pitchai.flickrrecentphotobrowser.presentation.view.GridPhotoImageView;
 import com.pitchai.flickrrecentphotobrowser.utils.Utils;
+
+import javax.inject.Inject;
 
 import static com.pitchai.flickrrecentphotobrowser.Constants.PHOTO_BUNDLE;
 
@@ -34,7 +37,8 @@ public class PhotoFragment extends Fragment {
     private ImageView mImageView;
     private ProgressBar mProgressBar;
     private OnFragmentInteractionListener mListener;
-    private GridPhotoImagePresenter gridPhotoImagePresenter;
+    @Inject
+    public GridPhotoImagePresenter gridPhotoImagePresenter;
 
     public PhotoFragment() {
         // Required empty public constructor
@@ -58,9 +62,10 @@ public class PhotoFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        gridPhotoImagePresenter = new GridPhotoImagePresenter(getActivity(),
-                getApplicationComponent().getJobExecutor(), getApplicationComponent().getUIThread
-                ());
+        AndroidApplication.getAndroidApplication(this.getActivity())
+                .getApplicationComponent()
+                .plus(new PhotoFragmentModule(this))
+                .inject(this);
     }
 
     @Override
@@ -126,9 +131,5 @@ public class PhotoFragment extends Fragment {
      */
     public interface OnFragmentInteractionListener {
         void onClickImageView();
-    }
-
-    private ApplicationComponent getApplicationComponent() {
-        return ApplicationComponent.getInstance(getActivity());
     }
 }

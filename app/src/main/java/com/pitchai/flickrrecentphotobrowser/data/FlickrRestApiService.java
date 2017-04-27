@@ -14,7 +14,7 @@ import retrofit2.http.Query;
 /**
  * Rest API interface
  */
-public interface RestApiService {
+public interface FlickrRestApiService {
     @GET("/services/rest")
     Observable<PhotoInfo> getRecentPhotoList(@Query("method") String method,
                                              @Query("nojsoncallback") String callback,

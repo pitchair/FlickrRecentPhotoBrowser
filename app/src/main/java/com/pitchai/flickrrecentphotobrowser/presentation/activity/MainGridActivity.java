@@ -16,7 +16,7 @@ import static com.pitchai.flickrrecentphotobrowser.Constants.CURRENT_POSITION;
 import static com.pitchai.flickrrecentphotobrowser.Constants.PHOTO_BUNDLE;
 import static com.pitchai.flickrrecentphotobrowser.Constants.PHOTO_LIST;
 
-public class MainGridActivity extends FragmentActivity implements MainGridFragmentList
+public class MainGridActivity extends BaseActivity implements MainGridFragmentList
         .OnFragmentInteractionListener {
 
 
@@ -27,14 +27,6 @@ public class MainGridActivity extends FragmentActivity implements MainGridFragme
         if (savedInstanceState == null) {
             addFragment(R.id.fragmentContainer, MainGridFragmentList.newInstance());
         }
-    }
-
-
-    private void addFragment(int containerViewId, Fragment fragment) {
-        final FragmentTransaction fragmentTransaction = this.getFragmentManager()
-                .beginTransaction();
-        fragmentTransaction.add(containerViewId, fragment);
-        fragmentTransaction.commit();
     }
 
     @Override

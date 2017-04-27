@@ -1,7 +1,7 @@
 package com.pitchai.flickrrecentphotobrowser.domain.Interactor;
 
 import com.pitchai.flickrrecentphotobrowser.Constants;
-import com.pitchai.flickrrecentphotobrowser.data.RestApiService;
+import com.pitchai.flickrrecentphotobrowser.data.FlickrRestApiService;
 import com.pitchai.flickrrecentphotobrowser.data.photoinfo.PhotoInfo;
 import com.pitchai.flickrrecentphotobrowser.domain.executor.PostExecutionThread;
 import com.pitchai.flickrrecentphotobrowser.domain.executor.ThreadExecutor;
@@ -14,16 +14,16 @@ import io.reactivex.Observable;
 
 public class GetPhotoInfoList extends UseCase<PhotoInfo,GetPhotoInfoList.Params> {
 
-    RestApiService restApiService;
+    FlickrRestApiService flickrRestApiService;
 
-    public GetPhotoInfoList(RestApiService apiService, ThreadExecutor threadExecutor, PostExecutionThread postExecutionThread) {
+    public GetPhotoInfoList(FlickrRestApiService apiService, ThreadExecutor threadExecutor, PostExecutionThread postExecutionThread) {
         super(threadExecutor,postExecutionThread);
-        this.restApiService = apiService;
+        this.flickrRestApiService = apiService;
     }
 
     @Override
     Observable<PhotoInfo> buildUseCaseObservable(Params params) {
-        return restApiService.getRecentPhotoList(Constants.METHOD_GET_RECENT, Constants
+        return flickrRestApiService.getRecentPhotoList(Constants.METHOD_GET_RECENT, Constants
                 .NO_CALL_BACK, Constants.FORMAT, Constants.API_KEY, params.position, Constants
                 .EXTRAS);
     }
