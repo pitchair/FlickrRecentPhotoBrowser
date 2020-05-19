@@ -3,10 +3,16 @@
 buildscript {
     repositories {
         jcenter()
+        google()
+    }
+
+    ext {
+        android_plugin_version = '3.6.0'
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.3'
-
+        classpath "com.android.tools.build:gradle:$android_plugin_version"
+        classpath "com.neenbedankt.gradle.plugins:android-apt:1.8"
+        classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4.9.8"
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -15,6 +21,7 @@ buildscript {
 allprojects {
     repositories {
         jcenter()
+        google()
     }
 }
 
