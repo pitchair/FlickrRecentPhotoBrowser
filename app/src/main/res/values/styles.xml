@@ -8,10 +8,11 @@
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
-    <style name="AppThemeDark" parent="@android:style/Theme.Holo">
-        <item name="android:windowActionBarOverlay">true</item>
+    <style name="AppThemeDark" parent="Theme.AppCompat.NoActionBar">
+     <!--   <item name="android:windowActionBar">false</item>
+        <item name="android:windowActionBarOverlay">false</item>-->
         <item name="android:windowBackground">@android:color/black</item>
-        <item name="android:actionBarStyle">@style/TranslucentDarkActionBar</item>
+        <!--<item name="android:actionBarStyle">@style/TranslucentDarkActionBar</item>-->
     </style>
 
     <style name="AppThemeDark.FullScreen" />
@@ -19,5 +20,8 @@
     <style name="TranslucentDarkActionBar" parent="@android:style/Widget.Holo.ActionBar">
         <item name="android:background">#99000000</item>
     </style>
+
+    <style name="Toolbar" parent="ThemeOverlay.AppCompat.Dark" />
+
 
 </resources>

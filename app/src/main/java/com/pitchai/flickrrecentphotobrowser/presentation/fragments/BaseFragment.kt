@@ -1,8 +1,9 @@
 package com.pitchai.flickrrecentphotobrowser.presentation.fragments
 
-import android.app.Fragment
+
 import android.os.Bundle
-import com.pitchai.flickrrecentphotobrowser.presentation.internal.di.HasComponent
+import androidx.fragment.app.Fragment
+import com.pitchai.flickrrecentphotobrowser.di.HasComponent
 
 /**
  * Created by pitchairajamani on 4/24/17.

@@ -17,13 +17,15 @@ package com.pitchai.flickrrecentphotobrowser
 
 import android.app.Application
 import android.content.Context
-import com.pitchai.flickrrecentphotobrowser.presentation.internal.di.component.ApplicationComponent
-import com.pitchai.flickrrecentphotobrowser.presentation.internal.di.component.DaggerApplicationComponent
-import com.pitchai.flickrrecentphotobrowser.presentation.internal.di.modules.ApplicationModule
+import com.pitchai.flickrrecentphotobrowser.di.ApplicationComponent
+import com.pitchai.flickrrecentphotobrowser.di.ApplicationModule
+import com.pitchai.flickrrecentphotobrowser.di.DaggerApplicationComponent
+import kotlinx.coroutines.InternalCoroutinesApi
 
 /**
  * Android Main Application
  */
+@InternalCoroutinesApi
 class AndroidApplication : Application() {
     var applicationComponent: ApplicationComponent? = null
     override fun onCreate() {

@@ -5,7 +5,7 @@ import android.app.AlertDialog
 import android.util.DisplayMetrics
 import android.util.Log
 import com.pitchai.flickrrecentphotobrowser.R
-import com.pitchai.flickrrecentphotobrowser.data.photoinfo.Photo
+import com.pitchai.flickrrecentphotobrowser.data.model.Photo
 
 /**
  * Created by pgrajama on 12/10/16.

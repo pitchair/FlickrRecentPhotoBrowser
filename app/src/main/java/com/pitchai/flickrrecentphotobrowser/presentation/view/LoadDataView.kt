@@ -23,8 +23,4 @@ interface LoadDataView {
      */
     fun showError(message: String?)
 
-    /**
-     * Get a [Context].
-     */
-    fun context(): Context?
 }

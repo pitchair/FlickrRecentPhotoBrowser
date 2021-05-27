@@ -1,48 +1,83 @@
 package com.pitchai.flickrrecentphotobrowser.presentation.activity
 
-import android.app.AlertDialog
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentPagerAdapter
-import android.support.v4.view.PagerAdapter
-import android.support.v4.view.ViewPager
-import android.support.v4.view.ViewPager.OnPageChangeListener
-import android.support.v4.view.ViewPager.PageTransformer
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
-import android.widget.ProgressBar
-import android.widget.TextView
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentPagerAdapter
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import androidx.viewpager.widget.PagerAdapter
+import androidx.viewpager.widget.ViewPager
+import com.pitchai.flickrrecentphotobrowser.AndroidApplication
 import com.pitchai.flickrrecentphotobrowser.Constants
 import com.pitchai.flickrrecentphotobrowser.R
-import com.pitchai.flickrrecentphotobrowser.data.photoinfo.Photo
+import com.pitchai.flickrrecentphotobrowser.data.Result
+import com.pitchai.flickrrecentphotobrowser.data.model.Photo
+import com.pitchai.flickrrecentphotobrowser.databinding.ActivityPhotoBinding
+import com.pitchai.flickrrecentphotobrowser.di.PhotoViewerComponent
+import com.pitchai.flickrrecentphotobrowser.di.PhotoViewerModule
+import com.pitchai.flickrrecentphotobrowser.presentation.ViewModel.PhotoViewModel
 import com.pitchai.flickrrecentphotobrowser.presentation.fragments.PhotoFragment
-import java.util.*
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class PhotoViewerActivity : BaseActivity(), PhotoFragment.OnFragmentInteractionListener, OnPageChangeListener {
+@InternalCoroutinesApi
+class PhotoViewerActivity : BaseActivity(), PhotoFragment.OnFragmentInteractionListener,
+    ViewPager.OnPageChangeListener {
+
+    @Inject
+    lateinit var photoViewModel: PhotoViewModel
+
+    private lateinit var binding: ActivityPhotoBinding
     private var mAdapter: ImagePagerAdapter? = null
-    private var mPager: ViewPager? = null
-    private var mPhotoArrayList: ArrayList<Photo>? = null
-    private var mCurrentPosition = 0
-    private var mPhoto: Photo? = null
-    private var mTextViewTitle: TextView? = null
-    private var mTextViewBasicInfo: TextView? = null
-    private var mTextViewHeader: TextView? = null
-    private val mAlertDialog: AlertDialog? = null
-    var mProgressBar: ProgressBar? = null
-    var bundle: Bundle? = null
+    private var mPhotoArrayList = ArrayList<Photo>()
+    var photoViewerComponent: PhotoViewerComponent? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        photoViewerComponent =
+            AndroidApplication.getAndroidApplication(this).applicationComponent?.plus(
+                PhotoViewerModule(this)
+            )
+        photoViewerComponent?.inject(this)
+
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_photo)
-        bundle = intent.getBundleExtra(Constants.PHOTO_BUNDLE)
-        mPhotoArrayList = bundle?.getSerializable(Constants.PHOTO_LIST) as ArrayList<Photo>
-        mCurrentPosition = bundle?.getInt(Constants.CURRENT_POSITION) ?: 0
+        binding = ActivityPhotoBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        val mCurrentPosition = intent.getIntExtra(Constants.CURRENT_POSITION, 0);
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                photoViewModel.getAllPhotos()
+                    .collectLatest { result ->
+                        when (result) {
+                            is Result.Loading -> {
+                                binding.photoActivityProgressbar.visibility = View.INVISIBLE
+                            }
+                            is Result.Error -> {
+                                /*TODO show error*/
+                                Log.d("", "Error : " + result.error.message)
+                            }
+                            is Result.Success -> {
+                                mPhotoArrayList.addAll(result.value)
+                                mAdapter?.notifyDataSetChanged()
+                                if (mCurrentPosition != -1) {
+                                    binding.viewPager.currentItem = mCurrentPosition
+                                }
+                            }
+                        }
+                    }
+            }
+        }
         initializeViews()
-        updateUI(bundle?.getInt(Constants.CURRENT_POSITION) ?: 0)
         // Set up activity to go full screen
         window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
-        toggleActionBar()
+        //toggleActionBar()
     }
 
     public override fun onDestroy() {
@@ -50,20 +85,14 @@ class PhotoViewerActivity : BaseActivity(), PhotoFragment.OnFragmentInteractionL
     }
 
     private fun initializeViews() {
-        mProgressBar = findViewById<View>(R.id.photo_activity_progressbar) as ProgressBar
-        mTextViewTitle = findViewById<View>(R.id.photo_title) as TextView
-        mTextViewBasicInfo = findViewById<View>(R.id.photo_basic_info) as TextView
-        mTextViewHeader = findViewById<View>(R.id.photo_number) as TextView
         mAdapter = ImagePagerAdapter(supportFragmentManager)
-        mPager = findViewById<View>(R.id.view_pager) as ViewPager
-        mPager?.adapter = mAdapter
-        mPager?.pageMargin = resources.getDimension(R.dimen.activity_horizontal_margin).toInt()
-        mPager?.offscreenPageLimit = 2
-        mPager?.addOnPageChangeListener(this)
-        mPager?.setPageTransformer(false, ZoomOutPageTransformer())
-        if (mCurrentPosition != -1) {
-            mPager?.currentItem = mCurrentPosition
-        }
+        binding.viewPager.adapter = mAdapter
+        binding.viewPager.pageMargin =
+            resources.getDimension(R.dimen.activity_horizontal_margin).toInt()
+        binding.viewPager.offscreenPageLimit = 1
+        binding.viewPager.addOnPageChangeListener(this)
+        binding.viewPager.setPageTransformer(false, ZoomOutPageTransformer())
+
     }
 
     /**
@@ -71,36 +100,38 @@ class PhotoViewerActivity : BaseActivity(), PhotoFragment.OnFragmentInteractionL
      * to make full screen for picture view
      */
     override fun onClickImageView() {
-        val vis = mPager?.systemUiVisibility ?: 0
+        val vis = binding.viewPager.systemUiVisibility ?: 0
         if (vis and View.SYSTEM_UI_FLAG_LOW_PROFILE != 0) {
-            mPager?.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+            binding.viewPager.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
         } else {
-            mPager?.systemUiVisibility = View.SYSTEM_UI_FLAG_LOW_PROFILE
+            binding.viewPager.systemUiVisibility = View.SYSTEM_UI_FLAG_LOW_PROFILE
         }
     }
 
     private fun updateUI(position: Int) {
-        mPhoto = mPhotoArrayList?.get(position)
-        mTextViewBasicInfo?.text = mPhoto?.ownername + ", " + mPhoto?.datetaken
-        mTextViewTitle?.text = mPhoto?.title
-        mTextViewHeader?.text = (position + 1).toString() + " of " + mPhotoArrayList?.size
+        val mPhoto = mPhotoArrayList.get(position)
+        val basicInfoText = "${mPhoto.ownername} , + ${mPhoto.datetaken}"
+        binding.photoBasicInfo.text = basicInfoText
+        binding.photoTitle.text = mPhoto.title
+        val positionText = "${(position + 1)} of + ${mPhotoArrayList.size}"
+        binding.photoNumber.text = positionText
     }
 
     /**
      * ImagePagerAdapter handles the user swipe to navigate the picture
      * using PhotoFragments
      */
-    private inner class ImagePagerAdapter(fm: FragmentManager?) : FragmentPagerAdapter(fm) {
+    private inner class ImagePagerAdapter(fm: FragmentManager?) : FragmentPagerAdapter(fm!!) {
         override fun getCount(): Int {
-            return mPhotoArrayList?.size ?: 0
+            return mPhotoArrayList.size
         }
 
         override fun getItemPosition(`object`: Any): Int {
             return PagerAdapter.POSITION_NONE
         }
 
-        override fun getItem(position: Int): Fragment {
-            return PhotoFragment.Companion.newInstance(mPhotoArrayList?.get(position))
+        override fun getItem(position: Int): PhotoFragment {
+            return PhotoFragment.newInstance(mPhotoArrayList[position].id)
         }
     }
 
@@ -127,6 +158,7 @@ class PhotoViewerActivity : BaseActivity(), PhotoFragment.OnFragmentInteractionL
     /**
      * This function helps in hide/show when user clicks the image
      */
+    //TODO...Handle action bar
     private fun toggleActionBar() {
         val actionBar = actionBar
 
@@ -135,7 +167,7 @@ class PhotoViewerActivity : BaseActivity(), PhotoFragment.OnFragmentInteractionL
         actionBar.setDisplayHomeAsUpEnabled(true)
 
         // Hide and show the ActionBar as the visibility changes
-        mPager?.setOnSystemUiVisibilityChangeListener { vis ->
+        binding.viewPager.setOnSystemUiVisibilityChangeListener { vis ->
             if (vis and View.SYSTEM_UI_FLAG_LOW_PROFILE != 0) {
                 //mTextView.setVisibility(View.INVISIBLE);
                 actionBar.hide()
@@ -146,14 +178,14 @@ class PhotoViewerActivity : BaseActivity(), PhotoFragment.OnFragmentInteractionL
         }
 
         // Start low profile mode and hide ActionBar
-        mPager?.systemUiVisibility = View.SYSTEM_UI_FLAG_LOW_PROFILE
+        binding.viewPager.systemUiVisibility = View.SYSTEM_UI_FLAG_LOW_PROFILE
         actionBar.hide()
     }
 
     /**
      * Class that implements zoom out page transformer
      */
-    inner class ZoomOutPageTransformer : PageTransformer {
+    inner class ZoomOutPageTransformer : ViewPager.PageTransformer {
         override fun transformPage(view: View, position: Float) {
             val pageWidth = view.width
             val pageHeight = view.height
