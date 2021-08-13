@@ -19,7 +19,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".presentation.activity.PhotoViewerActivity"
-                  android:theme="@style/AppThemeDark.FullScreen">
+                  android:theme="@style/AppThemeDark">
         </activity>
     </application>
 

@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent"
-    tools:context="com.pitchai.photobrowser.activity.PhotoViewerActivity">
+    android:layout_height="fill_parent">
     <TextView
         android:id="@+id/photo_number"
         android:layout_width="wrap_content"
@@ -18,12 +17,12 @@
         android:paddingLeft="10dp"
         android:layout_alignParentTop="true"
         android:textAppearance="@style/Base.TextAppearance.AppCompat.Headline"/>
-    <android.support.v4.view.ViewPager
+    <androidx.viewpager.widget.ViewPager
         android:layout_below="@+id/photo_number"
         android:id="@+id/view_pager"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" >
-    </android.support.v4.view.ViewPager>
+    </androidx.viewpager.widget.ViewPager>
     <ProgressBar
         android:id="@+id/photo_activity_progressbar"
         style="?android:attr/progressBarStyleLarge"

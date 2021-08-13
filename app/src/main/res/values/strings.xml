@@ -10,4 +10,5 @@
     <string name="cancel">Cancel</string>
     <string name="content_saved">Content Saved</string>
     <string name="error">Error</string>
+    <string name="retry">Retry</string>
 </resources>
