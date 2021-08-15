@@ -1,4 +1,4 @@
-# My project's README
+# FlickrRecentPhotoBrowser
 ## Paging Architecture:
 ![Screen Shot 2021-08-13 at 7 05 46 PM](https://user-images.githubusercontent.com/85177672/129425899-60285086-8ce1-4e82-b2d7-4fc341860cf6.png)
 
